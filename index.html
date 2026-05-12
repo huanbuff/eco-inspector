@@ -1,0 +1,498 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>环保管家智能巡检</title>
+    <!-- 引入 Tailwind CSS 进行快速样式设计 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定义动画与样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mic-btn {
+            transition: all 0.3s ease;
+        }
+        .mic-btn.recording {
+            animation: pulse-red 1.5s infinite;
+            background-color: #ef4444;
+            color: white;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .report-card {
+            transition: transform 0.2s;
+        }
+        .report-card:active {
+            transform: scale(0.98);
+        }
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-emerald-600 text-white p-4 shadow-md z-10">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-leaf text-xl"></i>
+                <h1 class="text-lg font-bold">环保管家智能巡检</h1>
+            </div>
+            <button onclick="toggleSettings()" class="text-white hover:text-emerald-200">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4" id="main-content">
+        
+        <!-- 欢迎与状态提示 -->
+        <div id="status-banner" class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded text-sm text-blue-700 hidden">
+            <p><i class="fa-solid fa-info-circle mr-1"></i> <span id="status-text">准备就绪</span></p>
+        </div>
+
+        <!-- 语音输入区域 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center justify-center space-y-4">
+            <div class="text-center space-y-1">
+                <h2 class="text-gray-800 font-semibold">现场隐患描述</h2>
+                <p class="text-xs text-gray-500">点击麦克风，说出检查情况</p>
+            </div>
+            
+            <button id="mic-btn" class="mic-btn w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-inner border-4 border-emerald-50">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+
+            <div class="w-full">
+                <label class="text-xs text-gray-400 ml-1">识别结果</label>
+                <textarea id="transcript" class="w-full mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" rows="4" placeholder="例如：污水处理站曝气池泡沫过多，颜色发黑，伴有异味..."></textarea>
+            </div>
+
+            <button onclick="generateReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg shadow transition-colors flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>生成合规报告</span>
+            </button>
+        </div>
+
+        <!-- 历史报告列表 -->
+        <div class="space-y-3">
+            <div class="flex justify-between items-center px-1">
+                <h3 class="text-gray-700 font-bold text-sm">今日巡检记录</h3>
+                <span class="text-xs text-gray-400" id="record-count">0 条</span>
+            </div>
+            <div id="report-list" class="space-y-3 pb-20">
+                <!-- 报告卡片将通过 JS 动态插入 -->
+                <div class="text-center py-10 text-gray-400 text-sm" id="empty-state">
+                    <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
+                    <p>暂无巡检记录</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 报告详情模态框 -->
+    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-end sm:items-center justify-center transition-opacity duration-300">
+        <div class="bg-white w-full sm:w-96 sm:rounded-xl rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl transform transition-transform duration-300 translate-y-full sm:translate-y-0" id="modal-content">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-emerald-50 rounded-t-2xl">
+                <h3 class="font-bold text-emerald-800">隐患排查报告</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-4" id="modal-body">
+                <!-- 动态内容 -->
+            </div>
+            <div class="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex space-x-3">
+                <button onclick="copyReport()" class="flex-1 bg-white border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">
+                    <i class="fa-regular fa-copy mr-1"></i> 复制
+                </button>
+                <button onclick="shareReport()" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-emerald-700">
+                    <i class="fa-solid fa-share-nodes mr-1"></i> 分享
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置模态框 -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white w-11/12 max-w-sm rounded-xl p-5 shadow-xl">
+            <h3 class="font-bold text-lg mb-4">系统设置</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API Key (可选)</label>
+                    <input type="password" id="api-key" class="w-full p-2 border border-gray-300 rounded text-sm" placeholder="输入Coze/Dify API Key">
+                    <p class="text-xs text-gray-400 mt-1">留空则使用本地模拟数据演示</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">企业名称</label>
+                    <input type="text" id="company-name" class="w-full p-2 border border-gray-300 rounded text-sm" value="示例环保科技有限公司">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="toggleSettings()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 状态管理 ---
+        let isRecording = false;
+        let recognition = null;
+        let reports = JSON.parse(localStorage.getItem('env_reports')) || [];
+
+        // --- 初始化 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderReports();
+            initSpeechRecognition();
+        });
+
+        // --- 语音识别逻辑 ---
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false; // 说完一句自动停止
+                recognition.interimResults = true; // 显示中间结果
+                recognition.lang = 'zh-CN';
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    updateMicUI(true);
+                    showStatus('正在聆听...', 'blue');
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    updateMicUI(false);
+                    hideStatus();
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i].transcript;
+                        }
+                    }
+                    if (finalTranscript) {
+                        document.getElementById('transcript').value += finalTranscript;
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error', event.error);
+                    showStatus('识别失败: ' + event.error, 'red');
+                    isRecording = false;
+                    updateMicUI(false);
+                };
+            } else {
+                document.getElementById('mic-btn').innerHTML = '<i class="fa-solid fa-keyboard"></i>';
+                document.getElementById('mic-btn').onclick = () => alert('您的浏览器不支持语音识别，请使用Chrome或Edge浏览器，或直接手动输入。');
+            }
+        }
+
+        document.getElementById('mic-btn').addEventListener('click', () => {
+            if (!recognition) return;
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                // 清空当前输入框以便重新录入，或者追加看需求，这里选择追加
+                // document.getElementById('transcript').value = ''; 
+                recognition.start();
+            }
+        });
+
+        function updateMicUI(recording) {
+            const btn = document.getElementById('mic-btn');
+            if (recording) {
+                btn.classList.add('recording');
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+            } else {
+                btn.classList.remove('recording');
+                btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            }
+        }
+
+        // --- 报告生成逻辑 (模拟 AI) ---
+        async function generateReport() {
+            const text = document.getElementById('transcript').value.trim();
+            if (!text) {
+                showStatus('请先输入或语音录入隐患描述', 'red');
+                return;
+            }
+
+            showStatus('正在分析法律法规...', 'blue');
+            const btn = document.querySelector('button[onclick="generateReport()"]');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>分析中...</span>';
+            btn.disabled = true;
+    // --- 真实 API 调用开始 ---
+    fetch('https://api.coze.cn/open-api/v1/bots/7638806020600496147/run', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmMDQyOWY0LWY4YTItNDAxZi05N2UwLTg3M2M2ODcxZTUyZiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIk03YWFKQ0kwZXI1bjZiV0dGTTJUdFBjaHNwblV6Z3FkIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc4NTUwNzQ4LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM4ODA5MjU0NTUxMzU1NDM1Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM4ODE3Mjk4NDUwNDgxMjA2In0.q7pzPBJ5hiOOwdy0wfhsOvqfGVj6JPbiq7R04qAX4PozoDSe_HZpPZp3pLDk-ewpWqGF_h4kMYn5O8M-KcX_hN1zgz8KHQr0ZIBEBqNdEFEofz0rZStNVUFBI3V2_KpsmS_hufPD8f96hKgPIKlHB_I4MPohPgcYxNDkLEQ_NTXud4Mopwi-qPxdBl5mMVMEy5IrMQgvm9jkFAKkpt9lj8784OSShTA0FXSve75srwCbN96AbzRpg6ffWLLHE1YseV8jYHH3H6XuCzIMR3n9PGGkzocFNlvE_TkIe_m7CcEf03YHDIsSwTghgaZOlWyQOgXdhE1GuzhRa3Ew0PKttA',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        input: { text: text },
+        conversation_id: Date.now().toString()
+      })
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('网络错误');
+      return response.json();
+    })
+    .then(data => {
+      // 注意：这里需要根据你Coze智能体实际返回的数据结构进行调整
+      // 假设Coze返回的数据在 data.data 或 data.output 中，具体需查看Coze API文档
+      // 以下是一个常见的解析示例，请根据实际返回修改
+      const aiContent = data.data?.content || data.output?.text || JSON.stringify(data);
+      
+      // 简单解析：假设AI返回的是纯文本，我们需要从中提取关键信息
+      // 更好的做法是让Coze输出JSON格式，然后直接解析 JSON.parse(aiContent)
+      
+      const realReport = {
+        id: Date.now(),
+        date: new Date().toLocaleString('zh-CN', { hour12: false }),
+        input: text,
+        hazard: "AI分析结果: " + (aiContent.substring(0, 20) + "..."), // 临时显示
+        law: "详见AI完整报告",
+        suggestion: aiContent,
+        level: "medium"
+      };
+
+      saveReport(realReport);
+      renderReports();
+      document.getElementById('transcript').value = '';
+      showStatus('AI分析完成', 'green');
+      openModal(realReport.id);
+    })
+    .catch(err => {
+      console.error('API调用失败:', err);
+      showStatus('AI分析失败: ' + err.message, 'red');
+    })
+    .finally(() => {
+      btn.innerHTML = originalBtnText;
+      btn.disabled = false;
+    });
+    // --- 真实 API 调用结束 ---
+         
+        }
+
+        // 模拟 AI 返回数据结构
+        function createMockReport(inputText) {
+            const id = Date.now();
+            const date = new Date().toLocaleString('zh-CN', { hour12: false });
+            
+            // 简单的关键词匹配模拟智能分析
+            let hazard = "一般隐患";
+            let law = "《中华人民共和国环境保护法》第四十二条";
+            let suggestion = "加强日常巡查，建立台账。";
+            let level = "low"; // low, medium, high
+
+            if (inputText.includes("废水") || inputText.includes("污水")) {
+                hazard = "水污染防治设施运行异常";
+                law = "《中华人民共和国水污染防治法》第二十一条";
+                suggestion = "立即检查曝气设备，监测出水水质，确保达标排放。";
+                level = "high";
+            } else if (inputText.includes("废气") || inputText.includes("异味") || inputText.includes("烟尘")) {
+                hazard = "大气污染物无组织排放";
+                law = "《中华人民共和国大气污染防治法》第四十八条";
+                suggestion = "检查集气罩收集效率，确保治污设施同步运行。";
+                level = "medium";
+            } else if (inputText.includes("危废") || inputText.includes("固废")) {
+                hazard = "危险废物贮存不规范";
+                law = "《中华人民共和国固体废物污染环境防治法》第七十九条";
+                suggestion = "完善危废标识标签，落实双人双锁管理，及时转移处置。";
+                level = "high";
+            }
+
+            return {
+                id: id,
+                date: date,
+                input: inputText,
+                hazard: hazard,
+                law: law,
+                suggestion: suggestion,
+                level: level
+            };
+        }
+
+        // --- 数据持久化与渲染 ---
+        function saveReport(report) {
+            reports.unshift(report); // 添加到开头
+            localStorage.setItem('env_reports', JSON.stringify(reports));
+        }
+
+        function renderReports() {
+            const list = document.getElementById('report-list');
+            const emptyState = document.getElementById('empty-state');
+            const countSpan = document.getElementById('record-count');
+            
+            countSpan.innerText = `${reports.length} 条`;
+
+            if (reports.length === 0) {
+                list.innerHTML = '';
+                list.appendChild(emptyState);
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            list.innerHTML = '';
+
+            reports.forEach(report => {
+                const card = document.createElement('div');
+                card.className = 'report-card bg-white p-4 rounded-lg shadow-sm border-l-4 cursor-pointer';
+                
+                // 根据等级设置颜色
+                let borderColor = 'border-gray-300';
+                let badgeColor = 'bg-gray-100 text-gray-600';
+                if (report.level === 'high') {
+                    borderColor = 'border-red-500';
+                    badgeColor = 'bg-red-100 text-red-700';
+                } else if (report.level === 'medium') {
+                    borderColor = 'border-yellow-500';
+                    badgeColor = 'bg-yellow-100 text-yellow-700';
+                } else {
+                    borderColor = 'border-blue-500';
+                    badgeColor = 'bg-blue-100 text-blue-700';
+                }
+                
+                card.classList.add(borderColor);
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold px-2 py-1 rounded ${badgeColor}">${getLevelText(report.level)}</span>
+                        <span class="text-xs text-gray-400">${report.date.split(' ')}</span>
+                    </div>
+                    <h4 class="font-bold text-gray-800 text-sm mb-1 line-clamp-1">${report.hazard}</h4>
+                    <p class="text-xs text-gray-500 line-clamp-2">${report.input}</p>
+                `;
+                card.onclick = () => openModal(report.id);
+                list.appendChild(card);
+            });
+        }
+
+        function getLevelText(level) {
+            if (level === 'high') return '重大隐患';
+            if (level === 'medium') return '较大隐患';
+            return '一般隐患';
+        }
+
+        // --- 模态框逻辑 ---
+        function openModal(id) {
+            const report = reports.find(r => r.id === id);
+            if (!report) return;
+
+            const modal = document.getElementById('report-modal');
+            const content = document.getElementById('modal-content');
+            const body = document.getElementById('modal-body');
+
+            let levelColor = 'text-gray-600';
+            if (report.level === 'high') levelColor = 'text-red-600';
+            if (report.level === 'medium') levelColor = 'text-yellow-600';
+
+            body.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-gray-400 uppercase font-bold">现场描述</label>
+                        <p class="text-sm text-gray-800 mt-1 bg-gray-50 p-2 rounded">${report.input}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase font-bold">隐患类型</label>
+                            <p class="text-sm font-bold ${levelColor} mt-1">${report.hazard}</p>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase font-bold">发现时间</label>
+                            <p class="text-sm text-gray-800 mt-1">${report.date}</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                        <label class="text-xs text-emerald-600 uppercase font-bold flex items-center">
+                            <i class="fa-solid fa-scale-balanced mr-1"></i> 法律依据
+                        </label>
+                        <p class="text-sm text-emerald-900 mt-1 font-medium">${report.law}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-400 uppercase font-bold">整改建议</label>
+                        <p class="text-sm text-gray-800 mt-1 leading-relaxed">${report.suggestion}</p>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            // 动画效果
+            setTimeout(() => {
+                content.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('report-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.classList.add('translate-y-full');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- 辅助功能 ---
+        function showStatus(msg, type) {
+            const banner = document.getElementById('status-banner');
+            const text = document.getElementById('status-text');
+            text.innerText = msg;
+            
+            banner.className = `border-l-4 p-3 rounded text-sm flex items-center transition-all duration-300 ${
+                type === 'red' ? 'bg-red-50 border-red-500 text-red-700' :
+                type === 'green' ? 'bg-green-50 border-green-500 text-green-700' :
+                'bg-blue-50 border-blue-500 text-blue-700'
+            }`;
+            banner.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            document.getElementById('status-banner').classList.add('hidden');
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function copyReport() {
+            // 简单实现：复制当前模态框中的文本
+            const body = document.getElementById('modal-body').innerText;
+            navigator.clipboard.writeText(body).then(() => {
+                alert('报告内容已复制到剪贴板');
+            });
+        }
+
+        function shareReport() {
+            alert('分享功能需接入微信JSSDK或后端服务，此处仅做演示。');
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('report-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'report-modal') closeModal();
+        });
+    </script>
+</body>
+</html>
