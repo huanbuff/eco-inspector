@@ -242,54 +242,49 @@
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>分析中...</span>';
             btn.disabled = true;
     // --- 真实 API 调用开始 ---
-    fetch('https://ss9hx9t5fn.coze.site/stream_run', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmMDQyOWY0LWY4YTItNDAxZi05N2UwLTg3M2M2ODcxZTUyZiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIk03YWFKQ0kwZXI1bjZiV0dGTTJUdFBjaHNwblV6Z3FkIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc4NTUwNzQ4LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM4ODA5MjU0NTUxMzU1NDM1Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM4ODE3Mjk4NDUwNDgxMjA2In0.q7pzPBJ5hiOOwdy0wfhsOvqfGVj6JPbiq7R04qAX4PozoDSe_HZpPZp3pLDk-ewpWqGF_h4kMYn5O8M-KcX_hN1zgz8KHQr0ZIBEBqNdEFEofz0rZStNVUFBI3V2_KpsmS_hufPD8f96hKgPIKlHB_I4MPohPgcYxNDkLEQ_NTXud4Mopwi-qPxdBl5mMVMEy5IrMQgvm9jkFAKkpt9lj8784OSShTA0FXSve75srwCbN96AbzRpg6ffWLLHE1YseV8jYHH3H6XuCzIMR3n9PGGkzocFNlvE_TkIe_m7CcEf03YHDIsSwTghgaZOlWyQOgXdhE1GuzhRa3Ew0PKttA',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        input: { text: text },
-        conversation_id: Date.now().toString()
-      })
-    })
-    .then(response => {
-      if (!response.ok) throw new Error('网络错误');
-      return response.json();
-    })
-    .then(data => {
-      // 注意：这里需要根据你Coze智能体实际返回的数据结构进行调整
-      // 假设Coze返回的数据在 data.data 或 data.output 中，具体需查看Coze API文档
-      // 以下是一个常见的解析示例，请根据实际返回修改
-      const aiContent = data.data?.content || data.output?.text || JSON.stringify(data);
-      
-      // 简单解析：假设AI返回的是纯文本，我们需要从中提取关键信息
-      // 更好的做法是让Coze输出JSON格式，然后直接解析 JSON.parse(aiContent)
-      
-      const realReport = {
-        id: Date.now(),
-        date: new Date().toLocaleString('zh-CN', { hour12: false }),
-        input: text,
-        hazard: "AI分析结果: " + (aiContent.substring(0, 20) + "..."), // 临时显示
-        law: "详见AI完整报告",
-        suggestion: aiContent,
-        level: "medium"
-      };
+    const url = 'https://ss9hx9t5fn.coze.site/stream_run';
+const token = '<eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmMDQyOWY0LWY4YTItNDAxZi05N2UwLTg3M2M2ODcxZTUyZiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIk03YWFKQ0kwZXI1bjZiV0dGTTJUdFBjaHNwblV6Z3FkIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc4NTUwNzQ4LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM4ODA5MjU0NTUxMzU1NDM1Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM4ODE3Mjk4NDUwNDgxMjA2In0.q7pzPBJ5hiOOwdy0wfhsOvqfGVj6JPbiq7R04qAX4PozoDSe_HZpPZp3pLDk-ewpWqGF_h4kMYn5O8M-KcX_hN1zgz8KHQr0ZIBEBqNdEFEofz0rZStNVUFBI3V2_KpsmS_hufPD8f96hKgPIKlHB_I4MPohPgcYxNDkLEQ_NTXud4Mopwi-qPxdBl5mMVMEy5IrMQgvm9jkFAKkpt9lj8784OSShTA0FXSve75srwCbN96AbzRpg6ffWLLHE1YseV8jYHH3H6XuCzIMR3n9PGGkzocFNlvE_TkIe_m7CcEf03YHDIsSwTghgaZOlWyQOgXdhE1GuzhRa3Ew0PKttA>'; // 请替换为您的实际 Token
 
-      saveReport(realReport);
-      renderReports();
-      document.getElementById('transcript').value = '';
-      showStatus('AI分析完成', 'green');
-      openModal(realReport.id);
-    })
-    .catch(err => {
-      console.error('API调用失败:', err);
-      showStatus('AI分析失败: ' + err.message, 'red');
-    })
-    .finally(() => {
-      btn.innerHTML = originalBtnText;
-      btn.disabled = false;
-    });
+const requestData = {
+  content: {
+    query: {
+      prompt: [
+        {
+          type: 'text',
+          content: {
+            text: '' // 请在此处填入您要发送的文本内容
+          }
+        }
+      ]
+    }
+  },
+  type: 'query',
+  session_id: 'Qe4ESZE88ejXF_S_k1Ix1',
+  project_id: 7638806020600496147
+};
+
+// 使用 fetch API 发送 POST 请求
+fetch(url, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(requestData)
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error(`HTTP 错误! 状态码: ${response.status}`);
+  }
+  return response.json();
+})
+.then(data => {
+  console.log('请求成功:', data);
+  // 在这里处理返回的数据
+})
+.catch(error => {
+  console.error('请求失败:', error);
+});
     // --- 真实 API 调用结束 ---
          
         }
