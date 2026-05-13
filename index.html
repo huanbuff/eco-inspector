@@ -2,16 +2,22 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, 
+
+maximum-scale=1.0, user-scalable=no">
     <title>环保管家智能巡检</title>
     <!-- 引入 Tailwind CSS 进行快速样式设计 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Font Awesome 图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-
+
+awesome/6.4.0/css/all.min.css">
     <style>
         /* 自定义动画与样式 */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+
+"Helvetica Neue", Arial, sans-serif;
             background-color: #f3f4f6;
             -webkit-tap-highlight-color: transparent;
         }
@@ -53,37 +59,61 @@
                 <i class="fa-solid fa-leaf text-xl"></i>
                 <h1 class="text-lg font-bold">环保管家智能巡检</h1>
             </div>
-            <button onclick="toggleSettings()" class="text-white hover:text-emerald-200">
+            <button onclick="toggleSettings()" class="text-white hover:text-
+
+emerald-200">
                 <i class="fa-solid fa-gear text-xl"></i>
             </button>
         </div>
     </header>
 
     <!-- 主内容区域 -->
-    <main class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4" id="main-content">
+    <main class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4" id="main-
+
+content">
         
         <!-- 欢迎与状态提示 -->
-        <div id="status-banner" class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded text-sm text-blue-700 hidden">
-            <p><i class="fa-solid fa-info-circle mr-1"></i> <span id="status-text">准备就绪</span></p>
+        <div id="status-banner" class="bg-blue-50 border-l-4 border-blue-500 p-3 
+
+rounded text-sm text-blue-700 hidden">
+            <p><i class="fa-solid fa-info-circle mr-1"></i> <span id="status-
+
+text">准备就绪</span></p>
         </div>
 
         <!-- 语音输入区域 -->
-        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center justify-center space-y-4">
+        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center 
+
+justify-center space-y-4">
             <div class="text-center space-y-1">
                 <h2 class="text-gray-800 font-semibold">现场隐患描述</h2>
                 <p class="text-xs text-gray-500">点击麦克风，说出检查情况</p>
             </div>
             
-            <button id="mic-btn" class="mic-btn w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-inner border-4 border-emerald-50">
+            <button id="mic-btn" class="mic-btn w-20 h-20 rounded-full bg-
+
+emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-
+
+inner border-4 border-emerald-50">
                 <i class="fa-solid fa-microphone"></i>
             </button>
 
             <div class="w-full">
                 <label class="text-xs text-gray-400 ml-1">识别结果</label>
-                <textarea id="transcript" class="w-full mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" rows="4" placeholder="例如：污水处理站曝气池泡沫过多，颜色发黑，伴有异味..."></textarea>
+                <textarea id="transcript" class="w-full mt-1 p-3 bg-gray-50 
+
+border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none 
+
+focus:ring-2 focus:ring-emerald-500 resize-none" rows="4" placeholder="例如：污水
+
+处理站曝气池泡沫过多，颜色发黑，伴有异味..."></textarea>
             </div>
 
-            <button onclick="generateReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg shadow transition-colors flex items-center justify-center space-x-2">
+            <button onclick="generateReport()" class="w-full bg-emerald-600 
+
+hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg shadow 
+
+transition-colors flex items-center justify-center space-x-2">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                 <span>生成合规报告</span>
             </button>
@@ -97,7 +127,9 @@
             </div>
             <div id="report-list" class="space-y-3 pb-20">
                 <!-- 报告卡片将通过 JS 动态插入 -->
-                <div class="text-center py-10 text-gray-400 text-sm" id="empty-state">
+                <div class="text-center py-10 text-gray-400 text-sm" id="empty-
+
+state">
                     <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
                     <p>暂无巡检记录</p>
                 </div>
@@ -106,22 +138,42 @@
     </main>
 
     <!-- 报告详情模态框 -->
-    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-end sm:items-center justify-center transition-opacity duration-300">
-        <div class="bg-white w-full sm:w-96 sm:rounded-xl rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl transform transition-transform duration-300 translate-y-full sm:translate-y-0" id="modal-content">
-            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-emerald-50 rounded-t-2xl">
+    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 
+
+hidden flex items-end sm:items-center justify-center transition-opacity 
+
+duration-300">
+        <div class="bg-white w-full sm:w-96 sm:rounded-xl rounded-t-2xl max-h-
+
+[90vh] flex flex-col shadow-2xl transform transition-transform duration-300 
+
+translate-y-full sm:translate-y-0" id="modal-content">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-
+
+center bg-emerald-50 rounded-t-2xl">
                 <h3 class="font-bold text-emerald-800">隐患排查报告</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                <button onclick="closeModal()" class="text-gray-500 hover:text-
+
+gray-700">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
             <div class="p-5 overflow-y-auto space-y-4" id="modal-body">
                 <!-- 动态内容 -->
             </div>
-            <div class="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex space-x-3">
-                <button onclick="copyReport()" class="flex-1 bg-white border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">
+            <div class="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl 
+
+flex space-x-3">
+                <button onclick="copyReport()" class="flex-1 bg-white border 
+
+border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-
+
+50">
                     <i class="fa-regular fa-copy mr-1"></i> 复制
                 </button>
-                <button onclick="shareReport()" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-emerald-700">
+                <button onclick="shareReport()" class="flex-1 bg-emerald-600 
+
+text-white py-2 rounded-lg text-sm font-medium hover:bg-emerald-700">
                     <i class="fa-solid fa-share-nodes mr-1"></i> 分享
                 </button>
             </div>
@@ -129,22 +181,36 @@
     </div>
 
     <!-- 设置模态框 -->
-    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 
+
+hidden flex items-center justify-center">
         <div class="bg-white w-11/12 max-w-sm rounded-xl p-5 shadow-xl">
             <h3 class="font-bold text-lg mb-4">系统设置</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">API Key (可选)</label>
-                    <input type="password" id="api-key" class="w-full p-2 border border-gray-300 rounded text-sm" placeholder="输入Coze/Dify API Key">
-                    <p class="text-xs text-gray-400 mt-1">留空则使用本地模拟数据演示</p>
+                    <label class="block text-sm font-medium text-gray-700 mb-
+
+1">API Key (可选)</label>
+                    <input type="password" id="api-key" class="w-full p-2 border 
+
+border-gray-300 rounded text-sm" placeholder="输入Coze/Dify API Key">
+                    <p class="text-xs text-gray-400 mt-1">留空则使用本地模拟数据
+
+演示</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">企业名称</label>
-                    <input type="text" id="company-name" class="w-full p-2 border border-gray-300 rounded text-sm" value="示例环保科技有限公司">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+
+企业名称</label>
+                    <input type="text" id="company-name" class="w-full p-2 border 
+
+border-gray-300 rounded text-sm" value="示例环保科技有限公司">
                 </div>
             </div>
             <div class="mt-6 flex justify-end">
-                <button onclick="toggleSettings()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">保存</button>
+                <button onclick="toggleSettings()" class="bg-emerald-600 text-
+
+white px-4 py-2 rounded-lg text-sm">保存</button>
             </div>
         </div>
     </div>
@@ -163,8 +229,12 @@
 
         // --- 语音识别逻辑 ---
         function initSpeechRecognition() {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in 
+
+window) {
+                const SpeechRecognition = window.SpeechRecognition || 
+
+window.webkitSpeechRecognition;
                 recognition = new SpeechRecognition();
                 recognition.continuous = false; // 说完一句自动停止
                 recognition.interimResults = true; // 显示中间结果
@@ -184,13 +254,17 @@
 
                 recognition.onresult = (event) => {
                     let finalTranscript = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    for (let i = event.resultIndex; i < event.results.length; +
+
++i) {
                         if (event.results[i].isFinal) {
                             finalTranscript += event.results[i].transcript;
                         }
                     }
                     if (finalTranscript) {
-                        document.getElementById('transcript').value += finalTranscript;
+                        document.getElementById('transcript').value += 
+
+finalTranscript;
                     }
                 };
 
@@ -201,8 +275,12 @@
                     updateMicUI(false);
                 };
             } else {
-                document.getElementById('mic-btn').innerHTML = '<i class="fa-solid fa-keyboard"></i>';
-                document.getElementById('mic-btn').onclick = () => alert('您的浏览器不支持语音识别，请使用Chrome或Edge浏览器，或直接手动输入。');
+                document.getElementById('mic-btn').innerHTML = '<i class="fa-
+
+solid fa-keyboard"></i>';
+                document.getElementById('mic-btn').onclick = () => alert('您的浏
+
+览器不支持语音识别，请使用Chrome或Edge浏览器，或直接手动输入。');
             }
         }
 
@@ -228,7 +306,7 @@
             }
         }
 
-        // --- 报告生成逻辑 (模拟 AI) ---
+        // --- 报告生成逻辑 (真实 AI + CORS 代理) ---
         async function generateReport() {
             const text = document.getElementById('transcript').value.trim();
             if (!text) {
@@ -237,55 +315,156 @@
             }
 
             showStatus('正在分析法律法规...', 'blue');
-            const btn = document.querySelector('button[onclick="generateReport()"]');
+            const btn = document.querySelector('button[onclick="generateReport
+
+()"]');
             const originalBtnText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>分析中...</span>';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 
+
+<span>分析中...</span>';
             btn.disabled = true;
-    // --- 真实 API 调用开始 ---
-    const url = 'https://ss9hx9t5fn.coze.site/stream_run';
-const token = '<eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmMDQyOWY0LWY4YTItNDAxZi05N2UwLTg3M2M2ODcxZTUyZiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIk03YWFKQ0kwZXI1bjZiV0dGTTJUdFBjaHNwblV6Z3FkIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc4NTUwNzQ4LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM4ODA5MjU0NTUxMzU1NDM1Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM4ODE3Mjk4NDUwNDgxMjA2In0.q7pzPBJ5hiOOwdy0wfhsOvqfGVj6JPbiq7R04qAX4PozoDSe_HZpPZp3pLDk-ewpWqGF_h4kMYn5O8M-KcX_hN1zgz8KHQr0ZIBEBqNdEFEofz0rZStNVUFBI3V2_KpsmS_hufPD8f96hKgPIKlHB_I4MPohPgcYxNDkLEQ_NTXud4Mopwi-qPxdBl5mMVMEy5IrMQgvm9jkFAKkpt9lj8784OSShTA0FXSve75srwCbN96AbzRpg6ffWLLHE1YseV8jYHH3H6XuCzIMR3n9PGGkzocFNlvE_TkIe_m7CcEf03YHDIsSwTghgaZOlWyQOgXdhE1GuzhRa3Ew0PKttA>'; // 请替换为您的实际 Token
 
-const requestData = {
-  content: {
-    query: {
-      prompt: [
-        {
-          type: 'text',
-          content: {
-            text: '' // 请在此处填入您要发送的文本内容
-          }
+            // --- 使用 CORS 代理调用真实 API ---
+            const apiUrl = 'https://ss9hx9t5fn.coze.site/stream_run';
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent
+
+(apiUrl);
+            const token = 
+
+'eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmMDQyOWY0LWY4YTItNDAxZi05N2UwLTg3M2M2ODcxZTUyZiJ9
+
+.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIk03YWFKQ0kwZXI1bjZiV0dGTTJUdFBj
+
+aHNwblV6Z3FkIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc4NTUwNzQ4LCJzdWIiOiJzcGlmZ
+
+mU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM4ODA5MjU0NTUxMzU1NDM1Iiwic3
+
+JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM4ODE3Mjk4NDUwNDgxMjA2In0.q7pzPBJ
+
+5hiOOwdy0wfhsOvqfGVj6JPbiq7R04qAX4PozoDSe_HZpPZp3pLDk-ewpWqGF_h4kMYn5O8M-
+
+KcX_hN1zgz8KHQr0ZIBEBqNdEFEofz0rZStNVUFBI3V2_KpsmS_hufPD8f96hKgPIKlHB_I4MPohPgcYx
+
+NDkLEQ_NTXud4Mopwi-
+
+qPxdBl5mMVMEy5IrMQgvm9jkFAKkpt9lj8784OSShTA0FXSve75srwCbN96AbzRpg6ffWLLHE1YseV8jY
+
+HH3H6XuCzIMR3n9PGGkzocFNlvE_TkIe_m7CcEf03YHDIsSwTghgaZOlWyQOgXdhE1GuzhRa3Ew0PKttA
+
+';
+
+            const requestData = {
+                content: {
+                    query: {
+                        prompt: [
+                            {
+                                type: 'text',
+                                content: {
+                                    text: text
+                                }
+                            }
+                        ]
+                    }
+                },
+                type: 'query',
+                session_id: 'Qe4ESZE88ejXF_S_k1Ix1',
+                project_id: 7638806020600496147
+            };
+
+            try {
+                // 使用 CORS 代理绕过跨域
+                const response = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('HTTP 错误! 状态码: ' + response.status);
+                }
+
+                const data = await response.json();
+                console.log('请求成功:', data);
+
+                // 解析 AI 返回结果
+                let aiResult = '';
+                if (data.content && data.content.text) {
+                    aiResult = data.content.text;
+                } else if (typeof data === 'string') {
+                    aiResult = data;
+                } else {
+                    aiResult = JSON.stringify(data);
+                }
+
+                // 创建报告
+                const report = createReportFromAI(text, aiResult);
+                saveReport(report);
+                renderReports();
+                showStatus('报告生成成功！', 'green');
+
+            } catch (error) {
+                console.error('请求失败:', error);
+                showStatus('请求失败: ' + error.message, 'red');
+            } finally {
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            }
         }
-      ]
-    }
-  },
-  type: 'query',
-  session_id: 'Qe4ESZE88ejXF_S_k1Ix1',
-  project_id: 7638806020600496147
-};
 
-// 使用 fetch API 发送 POST 请求
-fetch(url, {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(requestData)
-})
-.then(response => {
-  if (!response.ok) {
-    throw new Error(`HTTP 错误! 状态码: ${response.status}`);
-  }
-  return response.json();
-})
-.then(data => {
-  console.log('请求成功:', data);
-  // 在这里处理返回的数据
-})
-.catch(error => {
-  console.error('请求失败:', error);
-});
-    // --- 真实 API 调用结束 ---
+        // 从 AI 返回结果创建报告
+        function createReportFromAI(inputText, aiResult) {
+            const id = Date.now();
+            const date = new Date().toLocaleString('zh-CN', { hour12: false });
+
+            let hazard = '隐患分析';
+            let law = '待补充';
+            let suggestion = '待补充';
+            let level = 'medium';
+
+            try {
+                const jsonMatch = aiResult.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const jsonResult = JSON.parse(jsonMatch[0]);
+                    hazard = jsonResult.隐患描述 || jsonResult.hazard_description 
+
+|| inputText;
+                    law = jsonResult.违反条款 || jsonResult.violated_law || '待补
+
+充';
+                    suggestion = jsonResult.整改建议 || jsonResult.suggestion || 
+
+'待补充';
+                } else {
+                    hazard = '隐患分析结果';
+                    law = aiResult;
+                    suggestion = '';
+                }
+            } catch (e) {
+                hazard = '隐患分析结果';
+                law = aiResult;
+                suggestion = '';
+            }
+
+            if (inputText.includes('重大') || inputText.includes('严重')) {
+                level = 'high';
+            } else if (inputText.includes('一般')) {
+                level = 'low';
+            }
+
+            return {
+                id: id,
+                date: date,
+                input: inputText,
+                hazard: hazard,
+                law: law,
+                suggestion: suggestion,
+                level: level,
+                rawResult: aiResult
+            };
+        }
          
         }
 
@@ -305,15 +484,21 @@ fetch(url, {
                 law = "《中华人民共和国水污染防治法》第二十一条";
                 suggestion = "立即检查曝气设备，监测出水水质，确保达标排放。";
                 level = "high";
-            } else if (inputText.includes("废气") || inputText.includes("异味") || inputText.includes("烟尘")) {
+            } else if (inputText.includes("废气") || inputText.includes("异味") 
+
+|| inputText.includes("烟尘")) {
                 hazard = "大气污染物无组织排放";
                 law = "《中华人民共和国大气污染防治法》第四十八条";
                 suggestion = "检查集气罩收集效率，确保治污设施同步运行。";
                 level = "medium";
-            } else if (inputText.includes("危废") || inputText.includes("固废")) {
+            } else if (inputText.includes("危废") || inputText.includes("固废")) 
+
+{
                 hazard = "危险废物贮存不规范";
                 law = "《中华人民共和国固体废物污染环境防治法》第七十九条";
-                suggestion = "完善危废标识标签，落实双人双锁管理，及时转移处置。";
+                suggestion = "完善危废标识标签，落实双人双锁管理，及时转移处
+
+置。";
                 level = "high";
             }
 
@@ -353,7 +538,9 @@ fetch(url, {
 
             reports.forEach(report => {
                 const card = document.createElement('div');
-                card.className = 'report-card bg-white p-4 rounded-lg shadow-sm border-l-4 cursor-pointer';
+                card.className = 'report-card bg-white p-4 rounded-lg shadow-sm 
+
+border-l-4 cursor-pointer';
                 
                 // 根据等级设置颜色
                 let borderColor = 'border-gray-300';
@@ -373,11 +560,19 @@ fetch(url, {
 
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-bold px-2 py-1 rounded ${badgeColor}">${getLevelText(report.level)}</span>
-                        <span class="text-xs text-gray-400">${report.date.split(' ')}</span>
+                        <span class="text-xs font-bold px-2 py-1 rounded 
+
+${badgeColor}">${getLevelText(report.level)}</span>
+                        <span class="text-xs text-gray-400">${report.date.split(' 
+
+')}</span>
                     </div>
-                    <h4 class="font-bold text-gray-800 text-sm mb-1 line-clamp-1">${report.hazard}</h4>
-                    <p class="text-xs text-gray-500 line-clamp-2">${report.input}</p>
+                    <h4 class="font-bold text-gray-800 text-sm mb-1 line-clamp-
+
+1">${report.hazard}</h4>
+                    <p class="text-xs text-gray-500 line-clamp-2">
+
+${report.input}</p>
                 `;
                 card.onclick = () => openModal(report.id);
                 list.appendChild(card);
@@ -406,28 +601,52 @@ fetch(url, {
             body.innerHTML = `
                 <div class="space-y-4">
                     <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold">现场描述</label>
-                        <p class="text-sm text-gray-800 mt-1 bg-gray-50 p-2 rounded">${report.input}</p>
+                        <label class="text-xs text-gray-400 uppercase font-bold">
+
+现场描述</label>
+                        <p class="text-sm text-gray-800 mt-1 bg-gray-50 p-2 
+
+rounded">${report.input}</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold">隐患类型</label>
-                            <p class="text-sm font-bold ${levelColor} mt-1">${report.hazard}</p>
+                            <label class="text-xs text-gray-400 uppercase font-
+
+bold">隐患类型</label>
+                            <p class="text-sm font-bold ${levelColor} mt-1">
+
+${report.hazard}</p>
                         </div>
                         <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold">发现时间</label>
-                            <p class="text-sm text-gray-800 mt-1">${report.date}</p>
+                            <label class="text-xs text-gray-400 uppercase font-
+
+bold">发现时间</label>
+                            <p class="text-sm text-gray-800 mt-1">${report.date}
+
+</p>
                         </div>
                     </div>
-                    <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-                        <label class="text-xs text-emerald-600 uppercase font-bold flex items-center">
-                            <i class="fa-solid fa-scale-balanced mr-1"></i> 法律依据
+                    <div class="bg-emerald-50 p-3 rounded-lg border border-
+
+emerald-100">
+                        <label class="text-xs text-emerald-600 uppercase font-
+
+bold flex items-center">
+                            <i class="fa-solid fa-scale-balanced mr-1"></i> 法律
+
+依据
                         </label>
-                        <p class="text-sm text-emerald-900 mt-1 font-medium">${report.law}</p>
+                        <p class="text-sm text-emerald-900 mt-1 font-medium">
+
+${report.law}</p>
                     </div>
                     <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold">整改建议</label>
-                        <p class="text-sm text-gray-800 mt-1 leading-relaxed">${report.suggestion}</p>
+                        <label class="text-xs text-gray-400 uppercase font-bold">
+
+整改建议</label>
+                        <p class="text-sm text-gray-800 mt-1 leading-relaxed">
+
+${report.suggestion}</p>
                     </div>
                 </div>
             `;
@@ -455,9 +674,13 @@ fetch(url, {
             const text = document.getElementById('status-text');
             text.innerText = msg;
             
-            banner.className = `border-l-4 p-3 rounded text-sm flex items-center transition-all duration-300 ${
+            banner.className = `border-l-4 p-3 rounded text-sm flex items-center 
+
+transition-all duration-300 ${
                 type === 'red' ? 'bg-red-50 border-red-500 text-red-700' :
-                type === 'green' ? 'bg-green-50 border-green-500 text-green-700' :
+                type === 'green' ? 'bg-green-50 border-green-500 text-green-700' 
+
+:
                 'bg-blue-50 border-blue-500 text-blue-700'
             }`;
             banner.classList.remove('hidden');
@@ -485,7 +708,9 @@ fetch(url, {
         }
 
         // 点击模态框外部关闭
-        document.getElementById('report-modal').addEventListener('click', (e) => {
+        document.getElementById('report-modal').addEventListener('click', (e) => 
+
+{
             if (e.target.id === 'report-modal') closeModal();
         });
     </script>
